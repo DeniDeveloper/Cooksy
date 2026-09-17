@@ -1,15 +1,34 @@
 # 🍳 Cooksy - AI Agent Context & Knowledge Base (`AGENTS.md`)
 
-This document provides complete, persistent context for AI agents working on the **Cooksy** project. Read this file first to instantly understand the architecture, patterns, key conventions, and past decisions.
+This document provides complete, persistent context for AI agents working on the **Cooksy** workspace. Read this file first to instantly understand the architecture, environment configurations, past fixes, key conventions, and development status.
 
 ---
 
 ## 📌 Project Overview
 - **App Name**: Cooksy (Gourmet Smart Recipe & AI Cooking Assistant)
 - **Primary Codebase**: `cooksy_flutter/` (Flutter / Dart)
-- **Web Prototype**: `site/public/` (Static HTML/JS prototype)
-- **GitHub Repository**: `https://github.com/DeniDeveloper/Cooksy.git` (Account: `DeniDeveloper`)
-- **SDK Path**: `C:\Users\Lenovo\flutter\bin\flutter.bat`
+- **Web Prototype**: `site/public/` (Static HTML/JS prototype in `site/`)
+- **GitHub Repository**: `https://github.com/DeniDeveloper/Cooksy.git` (Account: `DeniDeveloper`, Branch: `main`)
+- **Flutter SDK Path**: `C:\Users\Lenovo\flutter\bin\flutter.bat`
+
+---
+
+## ⚙️ Environment, JDK & Build Configuration
+
+> [!IMPORTANT]
+> **Active Toolchains & Java Setup:**
+> - **Flutter JDK Path**: `C:\Users\Lenovo\.jdks\jbr-21.0.11` (configured via `flutter config --jdk-dir "C:\Users\Lenovo\.jdks\jbr-21.0.11"`)
+> - **Gradle Version**: `8.14` (`android/gradle/wrapper/gradle-wrapper.properties`)
+> - **Android Gradle Plugin (AGP)**: `8.11.1` (`android/settings.gradle.kts`)
+> - **Kotlin Version**: `2.2.20` (`android/settings.gradle.kts`)
+> - **Android Studio Gradle JDK**: Must be set to Java 21 (`jbr-21` / `jbr-21.0.11`) under `Settings > Build, Execution, Deployment > Build Tools > Gradle`.
+
+### 🔑 Keystore & Signing Gotchas
+- If Gradle ever throws `Tag number over 30 is not supported` for `C:\Users\Lenovo\.android\debug.keystore`, it means a modern Java tool generated an unsupported PKCS12 tag format.
+- **Fix**: Regenerate using legacy JKS format:
+  ```powershell
+  & "C:\Users\Lenovo\.jdks\jbr-21.0.11\bin\keytool.exe" -genkey -v -keystore "C:\Users\Lenovo\.android\debug.keystore" -storepass android -alias androiddebugkey -keypass android -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Android Debug,O=Android,C=US" -deststoretype JKS
+  ```
 
 ---
 
@@ -18,8 +37,9 @@ This document provides complete, persistent context for AI agents working on the
 ```
 cooksy_flutter/
 ├── android/                        # Android Native Configuration
-│   ├── app/build.gradle.kts        # Kotlin DSL: Java 17, minSdk 21+, compileSdk 34+
-│   ├── build.gradle.kts            # Root Gradle configuration
+│   ├── app/build.gradle.kts        # Kotlin DSL: Java 17/21 compatible, minSdk 21+, compileSdk 34+
+│   ├── gradle.properties           # Network timeouts + AndroidX configurations
+│   ├── settings.gradle.kts         # AGP 8.11.1 & Kotlin 2.2.20 plugin declarations
 │   └── app/src/main/AndroidManifest.xml # Permissions: INTERNET, ACCESS_NETWORK_STATE
 ├── lib/
 │   ├── main.dart                   # Entry point: MultiProvider, Dark Theme (Plus Jakarta Sans/Inter)
@@ -74,6 +94,9 @@ Includes regional and Halal Filipino recipes:
 ### 4. Smart Grocery List (`models/grocery_item.dart` & `grocery_list_modal.dart`)
 - Automatically sorts ingredients into supermarket aisles: `Produce`, `Meat & Seafood`, `Dairy & Eggs`, `Grains & Bakery`, `Pantry & Spices`.
 
+### 5. Step-by-Step Cook Mode (`widgets/cook_mode_dialog.dart`)
+- Fullscreen step walkthrough with interactive countdown timers and audio feedback hooks.
+
 ---
 
 ## 🛠️ Build & Verification Commands
@@ -92,9 +115,11 @@ C:\Users\Lenovo\flutter\bin\flutter.bat analyze
 
 # 4. Build Android Release APK
 C:\Users\Lenovo\flutter\bin\flutter.bat build apk --release
+# Output: build\app\outputs\flutter-apk\app-release.apk
 
-# 5. Output location
-# build\app\outputs\flutter-apk\app-release.apk
+# 5. Build Android Debug APK
+C:\Users\Lenovo\flutter\bin\flutter.bat build apk --debug
+# Output: build\app\outputs\flutter-apk\app-debug.apk
 ```
 
 ---
